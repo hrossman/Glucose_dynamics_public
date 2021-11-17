@@ -44,7 +44,8 @@ class Glucose_ODE:
         self.equations = r"""
         dG/dt = -G(t)X(t)-\theta_3\left(G(t)-G_b\right) \\
         dX/dt = -\theta_1X(t) +\theta_2X\left(G(t)-G_b\right) \\
-        Ra(t) = H_1exp\left(\frac{-(t-T_1)^2}{W_1}\right)
+        Ra(t) = H_1exp\left(\frac{-(t-T_1)^2}{W_1}\right) \\
+              + H_2exp\left(\frac{-(t-T_2)^2}{W_2}\right)
         """
         # model params
         t_mult = 0.01

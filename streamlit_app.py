@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
 import streamlit as st
-
+from config import SEED, FONTSZ, COLOR_G, COLOR_X, COLOR_RA, COLOR_FIT, COLOR_FOOD, COLOR_OGTT
 
 def Ra_func_gaussian(t: float, H: float, T: float, W: float) -> float:
     return (H*np.exp(-((t-T)**2)/W))
@@ -142,49 +142,58 @@ param_max_val = 1000.
 params = {}
 
 st.set_page_config(layout="wide")
-col1, col2, col3 = st.columns([1, 1, 3])
-with col1:
+
+# col1, col2, col3 = st.columns([1, 1, 3])
+# col1, col2= st.columns([2, 3])
+# with col1:
+with st.sidebar:
+    # Init model
+    model = Glucose_ODE()
+    # # Title & Equation
+    st.header(model.title)
+    st.latex(model.equations)
+
     for param_name, param_default_val in def_params_L.items():
         param_step = step_params_L[param_name]
         params[param_name] = st.number_input(
             label=param_name, min_value=param_min_val, max_value=param_max_val,
             value=float(param_default_val), step=float(param_step), key=param_name, format="%f")
 
-with col2:
     for param_name, param_default_val in def_params_R.items():
         param_step = step_params_R[param_name]
         params[param_name] = st.number_input(
             label=param_name, min_value=param_min_val, max_value=param_max_val,
             value=float(param_default_val), step=float(param_step), key=param_name, format="%f")
 
+# with col2:
+#     for param_name, param_default_val in def_params_R.items():
+#         param_step = step_params_R[param_name]
+#         params[param_name] = st.number_input(
+#             label=param_name, min_value=param_min_val, max_value=param_max_val,
+#             value=float(param_default_val), step=float(param_step), key=param_name, format="%f")
 
-with col3:
-    ## SIMULATE
-    model = Glucose_ODE()
-    model.params = params
-    model.simulate()
-    dynamics_df = model.dynamics_df
-    t = model.t_eval
 
-    # st.write(dynamics_df)
+# with col2:
+## SIMULATE
+model.params = params
+model.simulate()
+dynamics_df = model.dynamics_df
+t = model.t_eval
 
-    # Title & Equation
-    st.header(model.title)
-    st.latex(model.equations)
-
-    # Plot outputs
-    fig, axes = plt.subplots(3, 1)
-    ax = axes[0]
-    ax.plot(t, dynamics_df['Ra'])
-    ax.set(ylabel='Ra(t)', xlabel='t')
-    ax.grid()
-    ax = axes[1]
-    ax.plot(t, dynamics_df['G'])
-    ax.set(ylabel='G(t)', xlabel='t')
-    ax.grid()
-    ax = axes[2]
-    ax.plot(t, dynamics_df['X'])
-    ax.set(ylabel='X(t)', xlabel='t')
-    ax.grid()
-    fig.tight_layout()
-    st.pyplot(fig)
+# Plot outputs
+fig, axes = plt.subplots(3, 1, figsize=(6,4), sharex=True)
+ax = axes[0]
+ax.plot(t, dynamics_df['Ra'], lw=1, color=COLOR_RA, alpha=0.5, label='Glucose values')
+ax.fill_between(t, 0, dynamics_df['Ra'], color=COLOR_RA, alpha=0.4)
+ax.set(ylabel='Ra(t)')
+ax.grid()
+ax = axes[1]
+ax.plot(t, dynamics_df['G'], ls='-', lw=4, color=COLOR_G, alpha=0.5, label='Glucose values')
+ax.set(ylabel='G(t)')
+ax.grid()
+ax = axes[2]
+ax.plot(t, dynamics_df['X'], lw=4, color=COLOR_X, alpha=0.5, label='Glucose values')
+ax.set(ylabel='X(t)', xlabel='t')
+ax.grid()
+fig.tight_layout()
+st.pyplot(fig)

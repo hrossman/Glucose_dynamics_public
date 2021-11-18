@@ -6,10 +6,6 @@ from scipy.interpolate import interp1d
 from config import SEED, FONTSZ, COLOR_G, COLOR_X, COLOR_RA, COLOR_FIT, COLOR_FOOD, COLOR_OGTT
 
 
-def Ra_func_gaussian(t: float, H: float, T: float, W: float) -> float:
-    return (H*np.exp(-((t-T)**2)/W))
-
-
 def Ra_double_gaussian(t, params):
     # Unpack model params
     H1 = params['H1']
@@ -20,25 +16,16 @@ def Ra_double_gaussian(t, params):
     W2 = params['W2']
 
     # Compute Ra input
+    def Ra_func_gaussian(t, H, T, W):
+        return (H*np.exp(-((t-T)**2)/W))
+
     Ra_value = Ra_func_gaussian(t, H1, T1, W1) + \
         Ra_func_gaussian(t, H2, T2, W2)
     Ra = interp1d(x=t, y=Ra_value, bounds_error=False)
     return Ra
 
 
-def GOM_ODE_func(t, ys, Ra, params):
-    Gb = params['Gb']
-    theta1 = params['theta1']
-    theta2 = params['theta2']
-    theta3 = params['theta3']
-    G, X = ys
-    dG = -G*X - theta3*(G-Gb) + Ra(t)
-    dX = -theta1*X + theta2*(G-Gb)
-    return [dG, dX]
-
-# -- ODE class
-
-
+# -- Parent ODE class
 class Glucose_ODE(object):
     def __init__(self) -> None:
         self.name = None
@@ -50,6 +37,10 @@ class Glucose_ODE(object):
         self.params = None
         # initial condions
         self.y0 = None
+        # ode function
+        self.ode_func = None
+        # input function
+        self.Ra_func = None
 
         # simulation params
         self.t_start = 0
@@ -57,9 +48,7 @@ class Glucose_ODE(object):
         self.t_points = 1000
         self.t_span = [self.t_start, self.t_end]
         self.t_eval = np.linspace(self.t_start, self.t_end, self.t_points)
-
-        self.ode_func = None
-        self.Ra_func = None
+        
 
     def run_ode_sim(self):
         # Solve ODE
@@ -101,6 +90,7 @@ class Glucose_ODE(object):
         return fig, axes
 
 
+#-- Specific model classes
 class GOM_ODE(Glucose_ODE):
     def __init__(self) -> None:
         super().__init__()
@@ -146,9 +136,22 @@ class GOM_ODE(Glucose_ODE):
             'T2': 100,
             'W2': 50
         }
-
         # inital conditions
         self.y0 = [self.params['G0'], self.params['X0']]
 
-        self.ode_func = GOM_ODE_func
+        # ode function
+        def ODE_func(t, ys, Ra, params):
+            Gb = params['Gb']
+            theta1 = params['theta1']
+            theta2 = params['theta2']
+            theta3 = params['theta3']
+            G, X = ys
+            dG = -G*X - theta3*(G-Gb) + Ra(t)
+            dX = -theta1*X + theta2*(G-Gb)
+            return [dG, dX]
+        self.ode_func = ODE_func
+      
+        # input function
         self.Ra_func = Ra_double_gaussian
+
+        

@@ -37,3 +37,10 @@ st.pyplot(fig)
 # Title & Equation
 st.header(model.title)
 st.latex(model.equations)
+
+st.header('Auxilary variables')
+fig, axes = model.plot_aux_vars()
+st.pyplot(fig)
+
+st.write(model.dynamics_df)
+st.write(model.aux_vars_df)

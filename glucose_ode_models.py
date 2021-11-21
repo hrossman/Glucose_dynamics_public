@@ -27,7 +27,7 @@ def Ra_double_gaussian(t, params):
 
 # -- Parent ODE class
 class Glucose_ODE(object):
-    def __init__(self) -> None:
+    def __init__(self, t_start=1, t_end=60*7) -> None:
         self.name = None
         self.title = None
         self.equations = None
@@ -43,9 +43,9 @@ class Glucose_ODE(object):
         self.Ra_func = None
 
         # simulation params
-        self.t_start = 5
-        self.t_end = 60*10
-        self.t_points = 1000
+        self.t_start = t_start
+        self.t_end = t_end
+        self.t_points = self.t_end
         self.t_span = [self.t_start, self.t_end]
         self.t_eval = np.linspace(self.t_start, self.t_end, self.t_points)
 
@@ -65,11 +65,15 @@ class Glucose_ODE(object):
         self.Ra = self.Ra_func(self.t_eval, self.params)
         # Solve dynamics
         self.dynamics_df = self.run_ode_sim()
+        # add measurement error
+        self.measured_df = pd.DataFrame({'t':self.t_eval,'G_measured':(self.dynamics_df['G'] + np.random.normal(loc=0,scale=self.params['lambda'], size=len(self.dynamics_df)))})
+        self.measured_df = self.measured_df.iloc[::15, :]
+        self.dynamics_df = self.dynamics_df.merge(self.measured_df, on='t', how='left')
 
     def plot_dynamic_vars(self):
         # Plot outputs
         n_vars = len(self.dynamic_vars)+1
-        fig, axes = plt.subplots(n_vars, 1, figsize=(6, 0.6+n_vars), sharex=True)
+        fig, axes = plt.subplots(n_vars, 1, figsize=(6, 0.8+n_vars), sharex=True)
         # Plot Ra input
         ax = axes[0]
         ax.plot(self.t_eval, self.dynamics_df['Ra'],
@@ -85,6 +89,13 @@ class Glucose_ODE(object):
                     color=self.dynamic_vars_colors[i], alpha=0.5, label=self.dynamic_vars_labels[i])
             ax.set(ylabel=f'{var}(t)')
             ax.grid()
+        ax.set(xlabel='t (minutes)', xticks=np.arange(self.t_start-1,self.t_end+1, 60))
+
+        # add measurements
+        ax = axes[1]
+        ax.scatter(self.t_eval, self.dynamics_df['G_measured'], s=20,
+                    color=self.dynamic_vars_colors[0], alpha=0.5, label = 'G measured')
+
         fig.tight_layout()
         return fig, axes
 
@@ -177,11 +188,11 @@ class GOM_ODE(Glucose_ODE):
             'beta': 5, #'[min]'
             'T1': 20, #'[min]'
             'T2': 120, #'[min]'
-            'W1': 0.5,
-            'W2': 0.5,
-            'RH': 0.8,
+            'W1': 0.6,
+            'W2': 0.4,
+            'RH': 0.7,
             'V': 1.45, #'[dL/kg]',
-            'lambda': 0,
+            'lambda': 10,
             'f': 0.9,
             # 'bodyweight_kg': 75,
             # 'input_mg': 75_000,
@@ -212,7 +223,7 @@ class GOM_ODE(Glucose_ODE):
             'W2': 0.2,
             'RH': 0.2,
             'V': 1, #'[dL/kg]',
-            'lambda': 0.1,
+            'lambda': 5, #'[mg/dL]',
             'f': 0.1,
             # 'bodyweight_kg': 10,
             # 'input_mg': 10_000,
@@ -285,6 +296,7 @@ class GOM_ODE(Glucose_ODE):
         self.aux_vars = aux_vars_df.drop('t', axis=1).columns
 
     def plot_aux_vars(self):
+        self.calc_aux_vars()
         # Plot outputs
         n_vars = len(self.aux_vars)+1
         fig, axes = plt.subplots(n_vars, 1, figsize=(6, 0.6+n_vars), sharex=True)
@@ -299,10 +311,11 @@ class GOM_ODE(Glucose_ODE):
         # plot aux vars
         for i, var in enumerate(self.aux_vars):
             ax = axes[i+1]
-            ax.plot(self.t_eval, self.aux_vars_df[var], ls='-', lw=4,
-            alpha=0.5, label=var)
+            ax.plot(self.t_eval, self.aux_vars_df[var], ls='-', lw=2,
+            color='k',alpha=0.5, label=var)
             ax.set(ylabel=f'{var}(t)')
             ax.grid()
+        ax.set(xlabel='t (minutes)', xticks=np.arange(self.t_start-1,self.t_end, 60))
         fig.tight_layout()
         return fig, axes
 
@@ -331,11 +344,8 @@ if __name__ == "__main__":
     #         'X0': 10, #'[1/min]',
     #     }
     # model.params['A'] = model.params['D']*model.params['f']
+
     model.simulate()
-    # fig, axes = model.plot_dynamic_vars()
-    # plt.show()
-    print(model.calc_aux_vars())
     fig, axes = model.plot_aux_vars()
     fig, axes = model.plot_dynamic_vars()
-
     plt.show()

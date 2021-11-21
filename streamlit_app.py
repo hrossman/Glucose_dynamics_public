@@ -1,36 +1,26 @@
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import streamlit as st
-from config import COLOR_G, COLOR_X, COLOR_RA
-from glucose_ode_models import GOM_ODE, GOM_ODE_OLD
-
-#-- STREAMLIT
-# Init model
-model = GOM_ODE()
-# model = GOM_ODE_OLD()
-
-
-param_min_val = -99999.
-param_max_val = 99999.
-new_params = {}
+from ode_models import GOM_ODE
 
 st.set_page_config(layout="wide")
 
+# Init model
+model = GOM_ODE()
+
 with st.sidebar:
     st.header(model.title)
-    # params inputs
-    for param_name, param_default_val in model.params.items():
-        param_step = model.params_steps[param_name]
-        new_params[param_name] = st.number_input(
-            label=param_name, min_value=param_min_val, max_value=param_max_val,
-            value=float(param_default_val), step=float(param_step), key=param_name, format="%f")
+    # get param inputs from sidebar
+    for param_name, param in model.params.items():
+        new_param_val = st.number_input(
+            label=param.latex_str, min_value=float(param.min_val), max_value=float(param.max_val),
+            value=float(param.default_val), step=float(param.step_size), key=param.name, format="%f")
+        # update
+        model.params[param_name].value = new_param_val
 
 
-## SIMULATE
-model.params = new_params
+# Simulate
 model.simulate()
-dynamics_df = model.dynamics_df
+
+# Plot main vars
 fig, axes = model.plot_dynamic_vars()
 st.pyplot(fig)
 
@@ -38,9 +28,11 @@ st.pyplot(fig)
 st.header(model.title)
 st.latex(model.equations)
 
+# Plot aux vars
 st.header('Auxilary variables')
 fig, axes = model.plot_aux_vars()
 st.pyplot(fig)
 
+# Show data tables
 st.write(model.dynamics_df)
 st.write(model.aux_vars_df)

@@ -21,7 +21,7 @@ class model_param(object):
         self.min_val = min_val
 
         self.value = self.default_val
-        # TODO - distribution for sampleong
+        # TODO - distribution for sampling
         # self.dist = None
 
 
@@ -37,6 +37,8 @@ class Glucose_ODE(object):
         self.name = None
         self.title = None
         self.equations = None
+        self.explainer_text = None
+
         self.dynamic_vars = None
         self.dynamic_vars_labels = None
         self.dynamic_vars_colors = None
@@ -116,16 +118,24 @@ class GOM_ODE(Glucose_ODE):
         self.name = 'GOM'
         self.title = 'Glucose Only Model (GOM)'
         self.equations = r"""
-        dG/dt = -G(t)X(t)-p_1[G(t)-G_b] \\
-                + Ra(t)/V \\
+        dG/dt = -G(t)X(t)-p_1[G(t)-G_b] + Ra(t)/V \\
         dX/dt = -p_2[X(t)-S_GZ(t)] \\
         Z(t) = \frac{G(t)-G_b}{1+exp[-\alpha(G(t)-G_b)]} + \beta Ra/V
         """
+        self.explainer_text = """
+        G(t) - Glucose dynamic variable [mg/dL]
+        X(t) - 
+
+        Model reproduced from:
+        [_A Glucose-Only Model to Extract Physiological Information from Postprandial Glucose Profiles in Subjects with Normal Glucose Tolerance_](https://journals.sagepub.com/doi/full/10.1177/19322968211026978)
+        (Eichenlab et. al. 2021)
+        """
+
         self.dynamic_vars = ['G', 'X']
         self.dynamic_vars_labels = ['Glucose values', 'X values']
         self.dynamic_vars_colors = [COLOR_G, COLOR_X]
 
-        # model params
+        # model params_
         # (name, latex_str, units, default_val, step_size, is_calculated, explanations, max_val, min_val)
         self.params = {
             'p1': model_param('p1', 'p_1', '[1/min]', 25e-3, 5e-3, False),

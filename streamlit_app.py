@@ -16,17 +16,20 @@ with st.sidebar:
         # update
         model.params[param_name].value = new_param_val
 
-
 # Simulate
 model.simulate()
+
+with st.expander(model.title+' details', expanded=True):
+    # Title & Equation
+    st.header(model.title)
+    st.latex(model.equations)
+    # explainer
+    st.markdown(model.explainer_text)
+
 
 # Plot main vars
 fig, axes = model.plot_dynamic_vars()
 st.pyplot(fig)
-
-# Title & Equation
-st.header(model.title)
-st.latex(model.equations)
 
 # Plot aux vars
 st.header('Auxilary variables')

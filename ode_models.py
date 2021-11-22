@@ -174,7 +174,7 @@ class GOM_ODE(Glucose_ODE):
             'W2': model_param('W2', 'W_2', '', 0.4, 0.2, False),
             'RH': model_param('W1', 'R_H', '', 0.7, 0.1, False),
             'V': model_param('V', 'V', '[dL/kg]', 1.45, 0.1, False),
-            'lambda': model_param('lambda', '\lambda', '[mg\dL]', 10, 1, False),
+            'lambda': model_param('lambda', '\lambda', '[mg\dL]', 5, 1, False),
             'f': model_param('f', 'f', '', 0.9, 0.1, False),
             # bodyweight
             # input_mg

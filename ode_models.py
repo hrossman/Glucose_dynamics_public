@@ -119,7 +119,7 @@ class GOM_ODE(Glucose_ODE):
         self.title = 'Glucose Only Model (GOM)'
         self.main_text = """
         A biological-inspired model of glucose-insulin dynamics for analysing cgm data using only observed glucose data.
-        De-expand details, and change paramters on the left sidebar to see effect on generated data in the plots below. Blue scatter plot are the observed measured values after adding errors.
+        De-expand details, and change parameters on the left sidebar to see effect on generated data in the plots below. Blue scatter plot are the observed measured values after adding errors.
         """
         self.equations = r"""
         \frac{dG}{dt} = -G(t)X(t)-p_1[G(t)-G_b] + \frac{Ra(t)}{V} \\ 

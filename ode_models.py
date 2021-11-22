@@ -118,10 +118,11 @@ class GOM_ODE(Glucose_ODE):
         self.name = 'GOM'
         self.title = 'Glucose Only Model (GOM)'
         self.equations = r"""
-        dG/dt = -G(t)X(t)-p_1[G(t)-G_b] + Ra(t)/V \\
-        dX/dt = -p_2[X(t)-S_GZ(t)] \\
-        Z(t) = \frac{G(t)-G_b}{1+exp[-\alpha(G(t)-G_b)]} + \beta Ra/V
+        \frac{dG}{dt} = -G(t)X(t)-p_1[G(t)-G_b] + \frac{Ra(t)}{V} \\
+        \frac{dX}{dt} = -p_2[X(t)-S_GZ(t)] \\
+        Z(t) = \frac{G(t)-G_b}{1+exp[-\alpha(G(t)-G_b)]} + \beta \frac{Ra(t)}{V}
         """
+        # self.equation
         self.explainer_text = """
         G(t) - Glucose dynamic variable [mg/dL]
         X(t) - 

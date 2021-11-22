@@ -19,7 +19,7 @@ with st.sidebar:
 # Simulate
 model.simulate()
 
-with st.expander(model.title+' details', expanded=True):
+with st.expander('Model details', expanded=True):
     # Title & Equation
     st.header(model.title)
     st.latex(model.equations)

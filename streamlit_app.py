@@ -12,7 +12,7 @@ with st.sidebar:
     # get param inputs from sidebar
     for param_name, param in model.params.items():
         new_param_val = st.number_input(
-            label=param.name, min_value=float(param.min_val), max_value=float(param.max_val),
+            label=f'{param.name} {param.units}', min_value=float(param.min_val), max_value=float(param.max_val),
             value=float(param.default_val), step=float(param.step_size), key=param.name, format="%f")
         # update
         model.params[param_name].value = new_param_val

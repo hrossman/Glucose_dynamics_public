@@ -117,15 +117,39 @@ class GOM_ODE(Glucose_ODE):
         super().__init__()
         self.name = 'GOM'
         self.title = 'Glucose Only Model (GOM)'
-        self.equations = r"""
-        \frac{dG}{dt} = -G(t)X(t)-p_1[G(t)-G_b] + \frac{Ra(t)}{V} \\
-        \frac{dX}{dt} = -p_2[X(t)-S_GZ(t)] \\
-        Z(t) = \frac{G(t)-G_b}{1+exp[-\alpha(G(t)-G_b)]} + \beta \frac{Ra(t)}{V}
+        self.main_text = """
+        A biological-inspired model of glucose-insulin dynamics for analysing cgm data using only observed glucose data.
+        De-expand details, and change paramters on the left sidebar to see effect on generated data in the plots below. Blue scatter plot are the observed measured values after adding errors.
         """
-        # self.equation
+        self.equations = r"""
+        \frac{dG}{dt} = -G(t)X(t)-p_1[G(t)-G_b] + \frac{Ra(t)}{V} \\ 
+        \texttt{\char32} \\
+        G_{measured}(t) = N(G,\lambda) \\ 
+        \texttt{\char32} \\
+        \frac{dX}{dt} = -p_2[X(t)-S_GZ(t)] \\
+        \texttt{\char32} \\
+        Z(t) = \frac{G(t)-G_b}{1+exp[-\alpha(G(t)-G_b)]} + \beta \frac{Ra(t)}{V} \\ 
+        \texttt{\char32} \\
+        Ra(t) = A(1-R_H)f(t,T_1,W_1) + AR_Hf(t,T_2,W_2) \\ 
+        \texttt{\char32} \\
+        f(t,T,W) = \frac{1}{\sqrt{\pi W}} exp(\frac{-(log(t/T)-W/2)^2}{W})
+        """
         self.explainer_text = """
-        G(t) - Glucose dynamic variable [mg/dL]
-        X(t) - 
+        $G(t)$ - Glucose state variable [mg/dL]  
+        $X(t)$ - Insulin action in a remote compartment [1/min]  
+        $Ra(t)$ - Rate of appearance (input funtion) [mg/kg/min]  
+        $p_1$ - glucose effectiveness [1/min]  
+        $V$ - distribution volume of glucose relative to body weight [dL/kg]  
+        $G_b$ - Basal glucose level [mg/dL]  
+        $$\lambda$$ - measurement error std [mg/dL]   
+        $p_2$ - decay dynamics of X [1/min]  
+        $S_G$ - Insulin sensitivity proxy [1/min per mg/dL]  
+        $$alpha$$ - shape parameter [dL/mg]  
+        $$beta$$ - coupling paramaeter [min]  
+        $A$ - total fixed AUC of intake, which is calculated from meal carbohydrate content [mg/kg]  
+        $R_H$ - distributions of 2 peaks  
+        $T_{1,2}$ - peak times [min]  
+        $W_{1,2}$ - widths  
 
         Model reproduced from:
         [_A Glucose-Only Model to Extract Physiological Information from Postprandial Glucose Profiles in Subjects with Normal Glucose Tolerance_](https://journals.sagepub.com/doi/full/10.1177/19322968211026978)

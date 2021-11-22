@@ -84,7 +84,7 @@ class Glucose_ODE(object):
         # Plot outputs
         n_vars = len(self.dynamic_vars)+1
         fig, axes = plt.subplots(
-            n_vars, 1, figsize=(6, 0.8+n_vars), sharex=True)
+            n_vars, 1, figsize=(6, 1.2+n_vars), sharex=True)
         # Plot Ra input
         ax = axes[0]
         ax.plot(self.t_eval, self.dynamics_df['Ra'],
@@ -106,7 +106,8 @@ class Glucose_ODE(object):
         # add measurements
         ax = axes[1]
         ax.scatter(self.t_eval, self.dynamics_df['G_measured'], s=20,
-                   color=self.dynamic_vars_colors[0], alpha=0.5, label='G measured')
+                   color=self.dynamic_vars_colors[0], alpha=0.5, label='Measured values')
+        ax.legend()
 
         fig.tight_layout()
         return fig, axes
@@ -118,7 +119,7 @@ class GOM_ODE(Glucose_ODE):
         self.name = 'GOM'
         self.title = 'Glucose Only Model (GOM)'
         self.main_text = """
-        A biological-inspired model of glucose-insulin dynamics for analysing cgm data using only observed glucose data.
+        A biologically-inspired mechanistic model of glucose-insulin dynamics for analysing cgm data _using only observed glucose data_.
         De-expand details, and change parameters on the left sidebar to see effect on generated data in the plots below. Blue scatter plot are the observed measured values after adding errors.
         """
         self.equations = r"""
@@ -137,7 +138,7 @@ class GOM_ODE(Glucose_ODE):
         self.explainer_text = """
         $G(t)$ - Glucose state variable [mg/dL]  
         $X(t)$ - Insulin action in a remote compartment [1/min]  
-        $Ra(t)$ - Rate of appearance (input funtion) [mg/kg/min]  
+        $Ra(t)$ - Rate of appearance (meal input funtion) [mg/kg/min]  
         $p_1$ - glucose effectiveness [1/min]  
         $V$ - distribution volume of glucose relative to body weight [dL/kg]  
         $G_b$ - Basal glucose level [mg/dL]  
@@ -154,6 +155,11 @@ class GOM_ODE(Glucose_ODE):
         Model reproduced from:
         [_A Glucose-Only Model to Extract Physiological Information from Postprandial Glucose Profiles in Subjects with Normal Glucose Tolerance_](https://journals.sagepub.com/doi/full/10.1177/19322968211026978)
         (Eichenlab et. al. 2021)
+
+        Eichenlaub 2021 showed validations and comparissions to the OMM (which has an insulin input):
+        * G(t) good fit performance
+        * $S_G$ correlates well with $S_I$ and same differences across sexes
+        * $Y_{GOM} = S_gZ(t)$ is close to $Y_{OMM} = S_I(I(t)-I_b)$
         """
 
         self.dynamic_vars = ['G', 'X']

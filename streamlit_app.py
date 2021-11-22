@@ -8,6 +8,7 @@ model = GOM_ODE()
 
 with st.sidebar:
     st.header(model.title)
+    st.text('Change parameters and\nsee effect on generated data')
     # get param inputs from sidebar
     for param_name, param in model.params.items():
         new_param_val = st.number_input(
@@ -27,16 +28,16 @@ with st.expander('Model details', expanded=True):
     # explainer
     st.markdown(model.explainer_text)
 
+with st.expander('Generated dynamics', expanded=True):
+    # Plot main vars
+    fig, axes = model.plot_dynamic_vars()
+    st.pyplot(fig)
 
-# Plot main vars
-fig, axes = model.plot_dynamic_vars()
-st.pyplot(fig)
+with st.expander('Auxilary variables', expanded=False):
+    # Plot aux vars
+    fig, axes = model.plot_aux_vars()
+    st.pyplot(fig)
 
-# Plot aux vars
-st.header('Auxilary variables')
-fig, axes = model.plot_aux_vars()
-st.pyplot(fig)
-
-# Show data tables
-st.write(model.dynamics_df)
-st.write(model.aux_vars_df)
+    # Show data tables
+    st.write(model.dynamics_df)
+    st.write(model.aux_vars_df)
